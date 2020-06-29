@@ -1,0 +1,93 @@
+import vendedores.*
+import centrosDeDistribucion.*
+import clientes.*
+
+
+
+test "vendedores,centros y clientes " {
+    
+    const buenosAires = new Provincia(poblacion=8000000)
+    const santaFe = new Provincia(poblacion=3000000)
+    const cordoba = new Provincia(poblacion=5000000)
+    const entreRios = new Provincia(poblacion=4000000)
+    const rosario = new Ciudad(provincia=santaFe)
+    const rafaela = new Ciudad(provincia=santaFe)
+    const sanFrancisco =  new Ciudad(provincia=cordoba)
+    const diamante = new Ciudad(provincia=entreRios)
+    const lobos = new Ciudad(provincia=buenosAires)
+    
+    
+    const ralp = new Fijo(ciudadAlojamiento=rosario)
+    const rolo = new Viajante(provinciasHabilitadas=([buenosAires,santaFe,entreRios]))
+    const comercio = new ComerciosCorresponsales(ciudadesConSucursales=([diamante,rafaela,rosario]))
+    const comercio2 = new ComerciosCorresponsales(ciudadesConSucursales=([lobos,sanFrancisco,rosario]))
+    
+    const certificacion = new Certificacion(tieneProductos=true,cantidadPuntos=15)
+    const certificacion2 = new Certificacion(tieneProductos=false,cantidadPuntos=5)
+    const certificacion3 = new Certificacion(tieneProductos=true,cantidadPuntos=10)
+    const certificacion4 = new Certificacion(tieneProductos=true,cantidadPuntos=20)
+    
+    ralp.certificaciones([certificacion3,certificacion4])
+    rolo.certificaciones([certificacion,certificacion2,certificacion3,certificacion4])
+    comercio.certificaciones([certificacion2,certificacion4])
+    comercio2.certificaciones([certificacion,certificacion2,certificacion4])
+    
+    
+	assert.that(ralp.puedeTrabajar(rosario))
+	assert.notThat(rolo.puedeTrabajar(sanFrancisco))
+	assert.that(comercio.puedeTrabajar(diamante))
+    assert.notThat(comercio.puedeTrabajar(lobos))
+    assert.that(comercio2.puedeTrabajar(lobos))
+    assert.notThat(ralp.esVersatil())
+    assert.that(rolo.esVersatil())
+    assert.notThat(comercio.esVersatil())
+    assert.that(comercio2.esVersatil())
+    assert.that(ralp.esFirme())
+    assert.that(rolo.esFirme())
+    assert.notThat(comercio.esFirme())
+    assert.that(comercio2.esFirme())
+    assert.notThat(ralp.esInfluyente())
+    assert.that(rolo.esInfluyente())
+    assert.notThat(comercio.esInfluyente())
+    assert.that(comercio2.esInfluyente())
+    
+    const centro = new CentroDeDistribucion(ciudadEstablecida=diamante,vendedores=([ralp,rolo]))
+    const centro2 = new CentroDeDistribucion(ciudadEstablecida=rosario,vendedores=([comercio]))
+   
+   
+    assert.equals(rolo,centro.vendedorEstrella())
+    assert.that(centro.puedeCubrir(rosario))
+    assert.notThat(centro.puedeCubrir(sanFrancisco))
+    assert.equals(([rolo]),centro.vendedoresGenericos())
+    assert.notThat(centro.esRobusto())
+    assert.notThat(ralp.tieneAfinidad(centro))
+    assert.that(ralp.tieneAfinidad(centro2))
+    assert.that(rolo.tieneAfinidad(centro2))
+    assert.that(comercio2.tieneAfinidad(centro2))
+    assert.notThat(comercio.tieneAfinidad(centro))
+    assert.that(comercio2.esCandidato(centro2))
+    assert.notThat(comercio.esCandidato(centro))
+    
+    const certificacion5 = new Certificacion(tieneProductos=false,cantidadPuntos=5)
+    
+    
+    centro.repartir(certificacion5)
+    assert.that(ralp.esVersatil())
+    
+    
+
+    const cliente1 = new Cliente(tipoCliente=inseguro)
+    const cliente2 = new Cliente(tipoCliente=detallista)
+    const cliente3 = new Cliente(tipoCliente=humanista)
+
+    assert.that(cliente1.puedeSerAtendido(rolo))
+    assert.that(cliente1.puedeSerAtendido(ralp))
+    assert.that(cliente2.puedeSerAtendido(rolo))
+    assert.notThat(cliente2.puedeSerAtendido(comercio))
+    assert.that(cliente3.puedeSerAtendido(rolo))
+    assert.notThat(cliente3.puedeSerAtendido(comercio2))
+
+
+
+}
+
